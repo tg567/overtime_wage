@@ -1,0 +1,88 @@
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: start;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 1em;
+    line-height: 1;
+}
+
+.param {
+    font-size: 1em;
+    font-weight: 500;
+    font-family: sans-serif;
+}
+
+input {
+    background-color: grey;
+    width: 120px;
+}
+
+/* .text-input {
+    font-size: 1em;
+    font-weight: 500;
+    font-family: sans-serif;
+    background-color: grey;
+    width: 130px;
+} */
+
+section {
+    border-radius: 8px;
+    border: 2px solid gray;
+    padding: 0px 10px 10px 10px;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #1a1a1a;
+    cursor: pointer;
+    /* transition: border-color 0.25s; */
+    transition: all 0.5s ease-out;
+    overflow: hidden;
+    /* transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55); */
+    margin: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* 弹性曲线 */
+}
+
+/* section.expanded {
+    transform: scaleY(1);
+}
+
+section.collapsed {
+    transform: scaleY(1);
+} */
+
+section:hover {
+    border-color: #646cff;
+}
+
+section:focus,
+section:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}
+
+#app {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: start;
+}
