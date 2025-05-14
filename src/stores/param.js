@@ -7,9 +7,15 @@ export const useParamStore = defineStore("param", () => {
         salaryPerHour: 21.60,
         firstWorkDay: '2025-04-15',
     });
+    let birth = reactive({
+        birthday: '1995-07-20',
+        gender: 2,
+    });
     return {
-        param
+        param,
+        birth
     }
 }, {
     persist: true,
 })
+

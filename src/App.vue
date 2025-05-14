@@ -12,6 +12,7 @@ const yearJSONs = [
 ]
 
 const param = useParamStore().param
+const birth = useParamStore().birth
 
 // 全局变量
 let years = [];
@@ -20,10 +21,13 @@ let maxYear = 2025;
 if (currentTime.getFullYear() >= 2025) {
     maxYear = currentTime.getFullYear() + 1
 }
+const tempBirthday = ref('')
 for (let i = 2024; i <= maxYear; i++) {
     years.push(i);
 }
 let holidayDates = {};
+let timer;
+
 const monthDetailMap = reactive(new Map())
 for (let i = 1; i <= 12; i++) {
     monthDetailMap.set(i, false)
@@ -38,10 +42,19 @@ yearJSONs.forEach(yearJSON => {
 const results = reactive([])
 const yearOnePointFive = ref(0)
 const yearTriple = ref(0)
+let retire = reactive({
+    retireDate: '',
+    day: 0,
+    hour: 0,
+    minute: 0,
+    second: 0
+})
 
 
 // 防抖函数初始化
 const debouncedCalculate = debounce(calculate, 200)
+// 防抖函数初始化
+const debouncedCalculateRetire = debounce(calculateRetire, 200)
 
 // 生命周期管理
 onBeforeUnmount(() => {
@@ -51,6 +64,21 @@ onBeforeUnmount(() => {
 watch(param, () => {
     param.year = Number(param.year)
     debouncedCalculate() // 触发防抖计算
+})
+
+let birthChange = true
+watch(birth, () => {
+    if (birthChange) {
+        birth.gender = Number(birth.gender)
+        debouncedCalculateRetire()
+    }
+})
+
+watch(tempBirthday, () => {
+    birthChange = false
+    birth.birthday = tempBirthday.value
+    birthChange = true
+    debouncedCalculateRetire()
 })
 
 // 计算逻辑优化
@@ -94,7 +122,15 @@ async function calculate() {
         results.splice(0, results.length) // 清空错误数据
     }
 }
+async function calculateRetire() {
+
+    clearInterval(timer)
+    startCountdown()
+
+}
+
 calculate();
+calculateRetire();
 
 // 异步获取假期数据优化
 async function holidayChange() {
@@ -118,7 +154,35 @@ function resetParam() {
     param.year = currentTime.getFullYear()
     param.salaryPerHour = 21.6
     param.firstWorkDay = "2025-04-15"
+    birth.birthday = '1995-07-20'
+    birth.gender = 2
 }
+
+
+function startCountdown() {
+    timer = setInterval(() => {
+        currentTime = new Date()
+        const retireDate = parseDate(birth.birthday)
+        if (birth.gender == 2) {
+            retireDate.setFullYear(retireDate.getFullYear() + 55)
+        } else {
+            retireDate.setFullYear(retireDate.getFullYear() + 63)
+        }
+        const leftTime = Math.floor((retireDate.getTime() - currentTime.getTime()) / 1000)
+        if (leftTime <= 0) {
+            clearInterval(timer);
+            return;
+        }
+
+        retire.day = Math.floor(leftTime / (60 * 60 * 24))
+        let left = leftTime % (60 * 60 * 24)
+        retire.hour = Math.floor(left / (60 * 60))
+        left = left % (60 * 60)
+        retire.minute = Math.floor(left / 60)
+        retire.second = Math.floor(left % 60)
+    }, 1000);
+}
+
 </script>
 
 <template>
@@ -130,9 +194,20 @@ function resetParam() {
         ，时薪<input type="number" v-model="param.salaryPerHour" class="param">
         <br>
 
-        任意一个白班的日期：<input type="date" v-model="param.firstWorkDay" class="param" required>
-        <label>(根据白班的日期计算实际工作日)</label>
+        上白班的日期：<input type="date" v-model="param.firstWorkDay" class="param" required>
         <button @click="resetParam()">恢复默认参数</button>
+        <br>
+        生日(默认不显示)：<input type="date" v-model="tempBirthday" class="param">
+        性别： <select v-model="birth.gender" class="param">
+            <option value="1">男</option>
+            <option value="2">女</option>
+        </select>
+    </div>
+    <div class="time" v-if="retire.day >= 0 && retire.hour >= 0 && retire.minute >= 0 && retire.second >= 0">
+        距离退休只剩余:
+        <div class="count_down">{{ retire.day }}天 {{ retire.hour.toString().padStart(2, "0") }}小时 {{
+            retire.minute.toString().padStart(2, "0") }}分 {{
+                retire.second.toString().padStart(2, "0") }}秒</div>
     </div>
     <div v-if="results.length">
         <transition-group name="fade">
@@ -197,6 +272,14 @@ function resetParam() {
 .fade-leave-to {
     opacity: 0;
 }
+
+.count_down {
+    font-size: 1.5em;
+    font-weight: 500;
+    font-family: sans-serif;
+    text-align: center;
+}
+
 .recharge {
     text-align: center;
 }
